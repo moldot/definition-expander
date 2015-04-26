@@ -1,0 +1,17 @@
+*.json
+dbpedia/
+.ropeproject/
+*.swp
+*.pyc
+dist/
+extracted/
+test.py
+wikiscout.egg-info/
+wikiscout/
+elasticstart.egg-info/
+maps/
+old-logs/
+*.zip
+*.bz2
+*.txt
+*.out
