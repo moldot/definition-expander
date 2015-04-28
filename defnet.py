@@ -35,20 +35,21 @@ class Defnet:
     def hyponyms_at(self, node):
         try:
             return set(filter(lambda child: True or type(child) is not str, self.defnet[node]['children']))
-        except: KeyError:
+        except KeyError:
             return set()
 
-    def defs_under(self, definition, full_sentence=None):a # in the future, might use full sentence to get word sense
-        synsets = wn.synsets(definition, pos=wn.NOUN)
+    def expand_def(self, definition, full_sentence=None): # in the future, might use full sentence to get word sense
+        defs = set()
+        map(defs.update, map(self.defs_under, wn.synsets(definition, pos=wn.NOUN)))
+        return defs
 
-
-
+    def defs_under(self, node):
+        defs = self.defs_at(node)
+        map(defs.update, map(self.defs_under, self.hyponyms_at(node)))
+        return defs
 
 
 def construct(definitions):
     defnet = Defnet()
     map(defnet.new_def, definitions)
     return defnet
-
-defnet = construct(['village', 'municipality', 'settlement', 'city', 'community', 'township', 'province'])
-defnet.print_tree()
