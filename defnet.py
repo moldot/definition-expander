@@ -28,13 +28,13 @@ class Defnet:
 
     def defs_at(self, node):
         try:
-            return set(filter(lambda child: type(child) is str, self.defnet[node]['children']))
+            return set(filter(lambda child: type(child) is str or type(child) is unicode, self.defnet[node]['children']))
         except KeyError:
             return set()
 
     def hyponyms_at(self, node):
         try:
-            return set(filter(lambda child: True or type(child) is not str, self.defnet[node]['children']))
+            return set(filter(lambda child: not (type(child) is str and type(child) is unicode), self.defnet[node]['children']))
         except KeyError:
             return set()
 
