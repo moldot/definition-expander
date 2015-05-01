@@ -15,3 +15,4 @@ old-logs/
 *.bz2
 *.txt
 *.out
+*.tar

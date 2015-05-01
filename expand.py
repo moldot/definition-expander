@@ -35,12 +35,14 @@ defnet = defnet.construct(all_defs.keys())
 
 
 def upward_by_defnet(definitions):
+    definitions = filter(lambda x: not nationality.is_demonym(x), definitions)
     defs = set()
     map(defs.update, map(defnet.inherited_hypernyms_of_def, definitions))
     return map(lambda synset: synset.name(), defs)
 
 
 def upward_by_infoclass(infoboxes):
+    definitions = filter(lambda x: not nationality.is_demonym(x), definitions)
     classes = set()
     map(classes.update, map(ontology.classes_above_infobox, infoboxes))
     return list(classes)

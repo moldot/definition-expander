@@ -12,7 +12,7 @@ MAPPINGS_URLS = [
 ONTOLOGY_URL = "http://mappings.dbpedia.org/server/ontology/classes/"
 
 URL_PREFIX = 'http://mappings.dbpedia.org/'
-HTML_CACHE_PATH_PREFIX = 'dbpedia/'
+HTML_CACHE_PATH_PREFIX = '/scratch/varot/defexpan/dbpedia/'
 
 def get_page_and_store(url, cache_path=None):
     """
