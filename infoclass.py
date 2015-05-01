@@ -58,30 +58,33 @@ def get_infobox_class_pairs(from_cache=True):
     """
     infobox_urls = []
     infobox_class_pairs = []
-    
+
     for i, mapping_url in enumerate(MAPPINGS_URLS):
         cache_path = HTML_CACHE_PATH_PREFIX + 'main_mapping_en_' + str(i+1) + '.html'
-        
+
         if from_cache:
             mapping_page = open(cache_path, 'r').read()
         else:
             mapping_page = get_page_and_store(mapping_url, cache_path)
 
         infobox_urls += get_infobox_urls(mapping_page)
-    
+
     for i, infobox_url in enumerate(infobox_urls):
         full_url = URL_PREFIX + infobox_url
         infobox = infobox_parser.get_class(infobox_url.split(':')[1]).replace('wikipedia-', '')
         cache_path = HTML_CACHE_PATH_PREFIX + 'infobox-' + infobox + '.html'
 
         #print '(%d/%d) %s' % (i+1, len(infobox_urls), infobox)
-        
+
         if from_cache:
             infobox_page = open(cache_path, 'r').read()
         else:
             infobox_page = get_page_and_store(URL_PREFIX + infobox_url, cache_path)
 
-        infobox_class_pairs.append((infobox, get_class(infobox_page)))
+        if infobox == 'football-biography':     # temporary solution
+            infobox_class_pairs.append((infobox, 'SoccerPlayer'))
+        else:
+            infobox_class_pairs.append((infobox, get_class(infobox_page)))
 
     return infobox_class_pairs
 
@@ -95,6 +98,7 @@ class InfoOntology():
                 'infoboxes': []
         }
         self.phase_to_class = {InfoOntology.to_phase(self.root): self.root}
+        self.infoclass_dict = dict(get_infobox_class_pairs(True))
 
     def parent(self, wiki_class):
         return self.ontology[wiki_class]['parent']
@@ -161,6 +165,19 @@ class InfoOntology():
         except KeyError:
             return []
 
+    def classes_above(self, wiki_class):
+        wiki_class = self.phase_to_class.get(wiki_class, wiki_class)
+        if wiki_class == self.root: return [self.root]
+        try:
+            return [wiki_class] + self.classes_above(self.parent(wiki_class))
+        except KeyError:
+            return []
+
+    def classes_above_infobox(self, infobox):
+        wiki_class = self.infoclass_dict.get(infobox, '')
+        print infobox, wiki_class
+        return self.classes_above(wiki_class)
+
     def print_tree(self, wiki_class, indent=''):
         print indent + wiki_class + ' ' + str(self.infoboxes_of(wiki_class))
         map(lambda subclass: self.print_tree(subclass, indent+'    '), self.subclasses_of(wiki_class))
@@ -170,7 +187,7 @@ class InfoOntology():
         """
         Return space-delimited lowercase string given CamelCase wiki class
         """
-        if wiki_class == 'foaf:Person': 
+        if wiki_class == 'foaf:Person':
             return 'person (foaf)' # special class, conflint with Person class
 
         str = re.sub('(.*:_*)', '', wiki_class)
@@ -219,18 +236,18 @@ def get_info_ontology(from_cache=True):
             self.current = ontology.root
             self.last_subclass = ontology.root
             self.infoclass = infoclass
-        
+
         def handle_starttag(self, tag, attrs):
             attrs = dict(attrs)
             if tag == 'ul':
                 self.current = self.last_subclass
             elif tag == 'a' and attrs.has_key('name') and attrs['name'] != 'owl:Thing':
-                self.ontology.add_class(attrs['name'], self.current, 
+                self.ontology.add_class(attrs['name'], self.current,
                         infoboxes=map(lambda x: x[0], filter(lambda x: x[1] == attrs['name'], self.infoclass)))
                 self.ontology.add_subclass(self.current, attrs['name'])
                 self.last_subclass = attrs['name']
 
-        def handle_endtag(self, tag):    
+        def handle_endtag(self, tag):
             if tag == 'ul':
                 self.current = self.ontology.parent(self.current)
 
@@ -240,6 +257,7 @@ def get_info_ontology(from_cache=True):
 
     return ontology
 
-if __name__ == '__main__':
-    pairs = get_infobox_class_pairs();
-    ontology = get_info_ontology(True)
+
+
+
+

@@ -1,5 +1,10 @@
 from nltk.corpus import wordnet as wn
 
+
+def limited_synsets(word):
+    return filter(lambda synset: synset.name().split('.')[-1] <= '02', wn.synsets(word, pos=wn.NOUN))
+
+
 class Defnet:
     def __init__(self):
         self.defnet = {}
@@ -9,7 +14,7 @@ class Defnet:
         }
 
     def new_def(self, definition):
-        map(lambda synset: self.add(synset, definition), wn.synsets(definition, pos=wn.NOUN))
+        map(lambda synset: self.add(synset, definition), limited_synsets(definition))
 
     def add(self, parent, child):
         if self.defnet.has_key(parent):
@@ -38,15 +43,25 @@ class Defnet:
         except KeyError:
             return set()
 
-    def expand_def(self, definition, full_sentence=None): # in the future, might use full sentence to get word sense
+    def defs_under_def(self, definition, full_sentence=None): # in the future, might use full sentence to get word sense
         defs = set()
-        map(defs.update, map(self.defs_under, wn.synsets(definition, pos=wn.NOUN)))
+        map(defs.update, map(self.defs_under, limited_synsets(definition)))
         return defs
 
     def defs_under(self, node):
         defs = self.defs_at(node)
         map(defs.update, map(self.defs_under, self.hyponyms_at(node)))
         return defs
+
+    def inherited_hypernyms_of_def(self, definition, full_sentence=None):
+        hypernyms = set()
+        map(hypernyms.update, map(self.inherited_hypernyms, limited_synsets(definition)))
+        return hypernyms
+
+    def inherited_hypernyms(self, node):
+        hypernyms = set([node])
+        map(hypernyms.update, map(self.inherited_hypernyms, self.defnet[node]['hypernyms']))
+        return hypernyms
 
 
 def construct(definitions):
