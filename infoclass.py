@@ -2,6 +2,7 @@ import urllib2
 import re
 from wikiscout import infobox_parser
 from HTMLParser import HTMLParser
+from config import DATA_DIRECTORY
 
 MAPPINGS_URLS = [
     'http://mappings.dbpedia.org/index.php?title=Special:AllPages&namespace=204&from=1930s-UK-film-stub&to=Infobox_darts_player',
@@ -12,7 +13,7 @@ MAPPINGS_URLS = [
 ONTOLOGY_URL = "http://mappings.dbpedia.org/server/ontology/classes/"
 
 URL_PREFIX = 'http://mappings.dbpedia.org/'
-HTML_CACHE_PATH_PREFIX = '/scratch/varot/defexpan/dbpedia/'
+HTML_CACHE_PATH_PREFIX = DATA_DIRECTORY + 'dbpedia/'
 
 def get_page_and_store(url, cache_path=None):
     """
@@ -175,7 +176,6 @@ class InfoOntology():
 
     def classes_above_infobox(self, infobox):
         wiki_class = self.infoclass_dict.get(infobox, '')
-        print infobox, wiki_class
         return self.classes_above(wiki_class)
 
     def print_tree(self, wiki_class, indent=''):

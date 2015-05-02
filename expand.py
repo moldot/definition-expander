@@ -42,8 +42,8 @@ def upward_by_defnet(definitions):
 
 
 def upward_by_infoclass(infoboxes):
-    definitions = filter(lambda x: not nationality.is_demonym(x), definitions)
+    infoboxes = filter(lambda x: not nationality.is_demonym(x), infoboxes)
     classes = set()
     map(classes.update, map(ontology.classes_above_infobox, infoboxes))
-    return list(classes)
+    return map(ontology.to_phase, classes)
 
