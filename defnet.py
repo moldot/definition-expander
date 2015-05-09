@@ -2,7 +2,11 @@ from nltk.corpus import wordnet as wn
 
 
 def limited_synsets(word):
-    return filter(lambda synset: synset.name().split('.')[-1] <= '02', wn.synsets(word, pos=wn.NOUN))
+    # quick hack. 'plant' more commonly refers to the organism rather than
+    # the factory. will be dealt with more neatly in the future.
+    if word == 'plant':
+        return [wn.synset('plant.n.02')]
+    return filter(lambda synset: synset.name().split('.')[-1] <= '01', wn.synsets(word, pos=wn.NOUN))
 
 
 class Defnet:
