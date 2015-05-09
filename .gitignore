@@ -9,10 +9,9 @@ test.py
 wikiscout.egg-info/
 wikiscout/
 elasticstart.egg-info/
-maps/
 old-logs/
+data/
 *.zip
-*.bz2
 *.txt
 *.out
 *.tar
